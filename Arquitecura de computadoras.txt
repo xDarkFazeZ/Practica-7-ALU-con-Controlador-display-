@@ -1,0 +1,243 @@
+const int C = A3;
+const int A = A2;
+const int D = A1;
+const int B = A0;
+const int Sel1 = A4;
+const int Sel2 = A5;
+const int pinG = 5;
+const int pinF = 6;
+const int pinA = 7;
+const int pinB = 8;
+const int pinE = 2;
+const int pinD = 3;
+const int pinC = 4;
+const int Display01 = 10;
+const int Display10 = 9;
+// G F com A B
+// E D com C DP
+// 3.3V A0-1 A1-2 A2-3 A3-4
+// 2-C, 3-
+int buttonC = 0;
+int buttonA = 0;
+int buttonB = 0;
+int buttonD = 0;
+int buttonStateSel1 = 0;
+int buttonStateSel2 = 0;
+int num = 0;
+int decU = 0;
+float decD = 0;
+bool err = false;
+
+void setup() {
+  
+  pinMode(A,INPUT);
+  pinMode(B,INPUT);
+  pinMode(C,INPUT);
+  pinMode(D,INPUT);
+  pinMode(pinA,OUTPUT);
+  pinMode(pinB,OUTPUT);
+  pinMode(pinC,OUTPUT);
+  pinMode(pinD,OUTPUT);
+  pinMode(pinE,OUTPUT);
+  pinMode(pinF,OUTPUT);
+  pinMode(pinG,OUTPUT);
+  pinMode(Display01,OUTPUT);
+  pinMode(Display10,OUTPUT);
+  pinMode(Sel1, INPUT);
+  pinMode(Sel2, INPUT);
+}
+
+void loop() {
+  int Unidades = 0;
+  int Decenas = 0;
+  int Centenas = 0;
+  int Millares = 0;
+  buttonA = digitalRead(A);
+  buttonB = digitalRead(B);
+  buttonC = digitalRead(C);
+  buttonD = digitalRead(D);
+  buttonStateSel1 = digitalRead(Sel1);
+  buttonStateSel2 = digitalRead(Sel2);
+  
+  //SUMA}
+  err = false;
+  if ((buttonA ^ buttonB) && (!buttonStateSel1) && (!buttonStateSel2)) {
+    Unidades = 1;
+  }
+
+  if (((buttonC ^ buttonD) ^ (buttonA && buttonB)) && (!buttonStateSel1) && (!buttonStateSel2)) {
+    Decenas = 1;
+  }
+  if (((buttonC ^ buttonD) && (buttonA && buttonB)) && (!buttonStateSel1) && (!buttonStateSel2)) {
+    Centenas = 1;
+  }
+
+  if ((buttonC && buttonD) && (!buttonStateSel1) && (!buttonStateSel2)) {
+    Centenas = 1;
+  }
+
+
+  //RESTA
+  if ((buttonA ^ buttonB) && (buttonStateSel1) && (!buttonStateSel2)) {
+    Unidades = 1;
+  }
+
+  if ((buttonC ^ buttonD) ^ (!buttonA && buttonB) && (buttonStateSel1) && (!buttonStateSel2)) {
+    Decenas = 1;
+  }
+  if ((!buttonC && !buttonD) && (!buttonA && buttonB) && (buttonStateSel1) && (!buttonStateSel2)) {
+    Centenas = 1;
+  }
+  if ((!buttonC && buttonD) && (!buttonA && buttonB) && (buttonStateSel1) && (!buttonStateSel2)) {
+    Centenas = 1;
+  }
+  if ((!buttonC && buttonD) && (!buttonA && !buttonB) && (buttonStateSel1) && (!buttonStateSel2)) {
+    Centenas = 1;
+  }
+  
+  if ((buttonA && buttonB) && (!buttonStateSel1) && (buttonStateSel2)) {
+    Unidades = 1;
+  }
+  if ((buttonC && buttonB) ^ (buttonD && buttonA) && (!buttonStateSel1) && (buttonStateSel2)) {
+    Decenas = 1;
+  }
+  if (((buttonC && buttonB) && (buttonD && buttonA)) ^ (buttonC && buttonD) && (!buttonStateSel1) && (buttonStateSel2)) {
+    Centenas = 1;
+  }
+  if ((buttonC && buttonB) && (buttonD && buttonA) && (buttonC && buttonD) && (!buttonStateSel1) && (buttonStateSel2)) {
+    Millares = 1;
+  }
+
+
+  //DIVISION
+  if ((!buttonD && !buttonB) && (buttonStateSel1) && (buttonStateSel2)){
+    Error();
+    err = true;
+    delay(0);
+  }
+  if ((buttonC && buttonB && !buttonD) && (buttonStateSel1) && (buttonStateSel2)) {
+    Decenas = 1;
+  }
+  if ((buttonA && buttonB && !buttonD) && (buttonStateSel1) && (buttonStateSel2)) {
+    Unidades = 1;
+  }
+  if ((buttonC && buttonD && !buttonB) && (buttonStateSel1) && (buttonStateSel2)) {
+    Unidades = 1;
+  }
+  if ((buttonA && buttonB && buttonC && buttonD) && (buttonStateSel1) && (buttonStateSel2)) {
+    Unidades = 1;
+  }
+
+  if (!err) 
+  {
+    num = (Unidades + (Decenas * 2) + (Centenas * 4) + (Millares * 8));
+    decD = (int) num / 10;
+    decU = num % 10;
+    Numero(decU);
+    digitalWrite(Display01,HIGH);
+    delay(1);
+    digitalWrite(Display01,LOW);    
+    ApagarTodo();
+    delay(0);
+    Numero(decD);
+    digitalWrite(Display10,HIGH);
+    delay(1);
+    digitalWrite(Display10,LOW);
+    ApagarTodo();
+  }
+}
+
+void Numero(int num) {
+  if (num==0) {
+    digitalWrite(pinA, LOW);
+    digitalWrite(pinB, LOW);
+    digitalWrite(pinC, LOW);
+    digitalWrite(pinD, LOW);
+    digitalWrite(pinE, LOW);
+    digitalWrite(pinF, LOW);
+  }
+  if (num==1) {
+    digitalWrite(pinB, LOW);
+    digitalWrite(pinC, LOW);
+  }
+  if (num==2) {
+    digitalWrite(pinA, LOW);
+    digitalWrite(pinB, LOW);
+    digitalWrite(pinG, LOW);
+    digitalWrite(pinD, LOW);
+    digitalWrite(pinE, LOW);
+  }
+  if (num==3) {
+    digitalWrite(pinA, LOW);
+    digitalWrite(pinB, LOW);
+    digitalWrite(pinC, LOW);
+    digitalWrite(pinD, LOW);
+    digitalWrite(pinG, LOW);
+  }
+  if (num==4) {
+    digitalWrite(pinB, LOW);
+    digitalWrite(pinC, LOW);
+    digitalWrite(pinG, LOW);
+    digitalWrite(pinF, LOW);
+  }
+  if (num==5) {
+    digitalWrite(pinA, LOW);
+    digitalWrite(pinG, LOW);
+    digitalWrite(pinC, LOW);
+    digitalWrite(pinD, LOW);
+    digitalWrite(pinF, LOW);
+  }
+  if (num==6) {
+    digitalWrite(pinA, LOW);
+    digitalWrite(pinG, LOW);
+    digitalWrite(pinC, LOW);
+    digitalWrite(pinD, LOW);
+    digitalWrite(pinE, LOW);
+    digitalWrite(pinF, LOW);
+  }
+  if (num==7) {
+    digitalWrite(pinA, LOW);
+    digitalWrite(pinB, LOW);
+    digitalWrite(pinC, LOW);
+  }
+  if (num==8) {
+    digitalWrite(pinA, LOW);
+    digitalWrite(pinB, LOW);
+    digitalWrite(pinC, LOW);
+    digitalWrite(pinD, LOW);
+    digitalWrite(pinE, LOW);
+    digitalWrite(pinF, LOW);
+    digitalWrite(pinG, LOW);
+  }
+  if (num==9) {
+    digitalWrite(pinA, LOW);
+    digitalWrite(pinB, LOW);
+    digitalWrite(pinC, LOW);
+    digitalWrite(pinD, LOW);
+    digitalWrite(pinG, LOW);
+    digitalWrite(pinF, LOW);
+  }
+}
+void ApagarTodo() {
+  digitalWrite(pinA, HIGH);
+  digitalWrite(pinB, HIGH);
+  digitalWrite(pinC, HIGH);
+  digitalWrite(pinD, HIGH);
+  digitalWrite(pinE, HIGH);
+  digitalWrite(pinF, HIGH);
+  digitalWrite(pinG, HIGH);
+}
+
+void Error() {
+  digitalWrite(pinG, LOW);
+  digitalWrite(Display01, HIGH);
+  delay(5);
+  digitalWrite(Display01, LOW);
+  ApagarTodo();  
+  delay(0);
+  digitalWrite(pinG, LOW);
+  digitalWrite(Display10, HIGH);
+  delay(5);
+  digitalWrite(Display10, LOW);
+  ApagarTodo();
+}
