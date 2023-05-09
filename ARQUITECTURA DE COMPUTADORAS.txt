@@ -1,0 +1,283 @@
+const int C = A3;
+const int A = A2;
+const int D = A1;
+const int B = A0;
+const int Sel1 = A4;
+const int Sel2 = A5;
+const int Sel3 = 11;
+const int pinG = 5;
+const int pinF = 6;
+const int pinA = 7;
+const int pinB = 8;
+const int pinE = 2;
+const int pinD = 3;
+const int pinC = 4;
+const int Display01 = 10;
+const int Display10 = 9;
+// G F com A B
+// E D com C DP
+// 3.3V A0-1 A1-2 A2-3 A3-4
+// 2-C, 3-
+int buttonC = 0;
+int buttonA = 0;
+int buttonB = 0;
+int buttonD = 0;
+int buttonStateSel1 = 0;
+int buttonStateSel2 = 0;
+int buttonStateSel3 = 0;
+int num = 0; //variables
+int decU = 0; //variables
+float decD = 0; //variables
+bool err = false; //variables
+
+void setup() {
+  
+  pinMode(A,INPUT); // SWITCH2
+  pinMode(B,INPUT); // SWITCH 4
+  pinMode(C,INPUT); // SWITCH 1
+  pinMode(D,INPUT); //SWITCH 3
+  pinMode(pinA,OUTPUT);
+  pinMode(pinB,OUTPUT);
+  pinMode(pinC,OUTPUT);
+  pinMode(pinD,OUTPUT);
+  pinMode(pinE,OUTPUT);
+  pinMode(pinF,OUTPUT);
+  pinMode(pinG,OUTPUT);
+  pinMode(Display01,OUTPUT); 
+  pinMode(Display10,OUTPUT); 
+  pinMode(Sel1, INPUT);
+  pinMode(Sel2, INPUT);
+  pinMode(Sel3, INPUT);
+}
+
+void loop() {
+  int Unidades = 0;
+  int Decenas = 0;
+  int Centenas = 0;
+  int Millares = 0;
+  buttonA = digitalRead(A); //LECTURA DE SWITCHES 
+  buttonB = digitalRead(B);
+  buttonC = digitalRead(C);
+  buttonD = digitalRead(D);
+  buttonStateSel1 = digitalRead(Sel1); //LECTURA DE BOTONES 
+  buttonStateSel2 = digitalRead(Sel2);
+  buttonStateSel3 = digitalRead(Sel3);
+  
+  //SUMA}
+  err = false; //CADA VEZ QUE REGRESE LO MARCA COMO FALSO
+  if ((buttonA ^ buttonB) && (!buttonStateSel1) && (!buttonStateSel2) && (!buttonStateSel3)) {
+    Unidades = 1; //0001
+  }
+
+  if (((buttonC ^ buttonD) ^ (buttonA && buttonB)) && (!buttonStateSel1) && (!buttonStateSel2) && (!buttonStateSel3)) {
+    Decenas = 1; //0010
+  }
+  if (((buttonC ^ buttonD) && (buttonA && buttonB)) && (!buttonStateSel1) && (!buttonStateSel2)&& (!buttonStateSel3)) {
+    Centenas = 1; //0100
+  }
+
+  if ((buttonC && buttonD) && (!buttonStateSel1) && (!buttonStateSel2)&& (!buttonStateSel3)) {
+    Centenas = 1; //0100
+  }
+
+
+  //RESTA
+  if ((buttonA ^ buttonB) && (buttonStateSel1) && (!buttonStateSel2)&& (!buttonStateSel3)) {
+    Unidades = 1; //0001
+  }
+
+  if ((buttonC ^ buttonD) ^ (!buttonA && buttonB) && (buttonStateSel1) && (!buttonStateSel2)&& (!buttonStateSel3)) {
+    Decenas = 1; //0010
+  }
+  if ((!buttonC && !buttonD) && (!buttonA && buttonB) && (buttonStateSel1) && (!buttonStateSel2)&& (!buttonStateSel3)) {
+    Centenas = 1; //0100
+  }
+  if ((!buttonC && buttonD) && (!buttonA && buttonB) && (buttonStateSel1) && (!buttonStateSel2)&& (!buttonStateSel3)) {
+    Centenas = 1; //0100
+  }
+  if ((!buttonC && buttonD) && (!buttonA && !buttonB) && (buttonStateSel1) && (!buttonStateSel2)&& (!buttonStateSel3)) {
+    Centenas = 1; //0100
+  }
+  
+//MULTIPLICACION
+  if ((buttonA && buttonB) && (!buttonStateSel1) && (buttonStateSel2)&& (!buttonStateSel3)) {
+    Unidades = 1; //0001
+  }
+  if ((buttonC && buttonB) ^ (buttonD && buttonA) && (!buttonStateSel1) && (buttonStateSel2)&& (!buttonStateSel3)) {
+    Decenas = 1; //0010
+  }
+  if (((buttonC && buttonB) && (buttonD && buttonA)) ^ (buttonC && buttonD) && (!buttonStateSel1) && (buttonStateSel2)&& (!buttonStateSel3)) {
+    Centenas = 1; //0100
+  }
+  if ((buttonC && buttonB) && (buttonD && buttonA) && (buttonC && buttonD) && (!buttonStateSel1) && (buttonStateSel2)&& (!buttonStateSel3)) {
+    Millares = 1; //1000
+  }
+
+  //DIVISION
+  if ((!buttonD && !buttonB) && (buttonStateSel1) && (buttonStateSel2)&& (!buttonStateSel3)){
+    Error(); //llama al metodo del error
+    err = true;
+    delay(0);
+  }
+  if ((buttonC && buttonB && !buttonD) && (buttonStateSel1) && (buttonStateSel2)&& (!buttonStateSel3)) {
+    Decenas = 1; //0010
+  }
+  if ((buttonA && buttonB && !buttonD) && (buttonStateSel1) && (buttonStateSel2)&& (!buttonStateSel3)) {
+    Unidades = 1; //0001
+  }
+  if ((buttonC && buttonD && !buttonB) && (buttonStateSel1) && (buttonStateSel2)&& (!buttonStateSel3)) {
+    Unidades = 1; //0001
+  } 
+  if ((buttonA && buttonB && buttonC && buttonD) && (buttonStateSel1) && (buttonStateSel2)&& (!buttonStateSel3)) {
+    Unidades = 1; //0001
+  }
+
+ //---------LOGICAS------------
+  //AND
+  if ((buttonA && buttonB) && (buttonStateSel1) && (buttonStateSel2) && (buttonStateSel3)) {
+    Unidades = 1;
+  }
+  if ((buttonC && buttonD) && (buttonStateSel1) && (buttonStateSel2) && (buttonStateSel3)) {
+    Millares = 1;
+    Decenas = 1;
+  }
+  //OR
+  if ((buttonA || buttonB) && (!buttonStateSel1) && (buttonStateSel2) && (buttonStateSel3)) {
+    Unidades = 1;
+  }  
+  if ((buttonC || buttonD) && (!buttonStateSel1) && (buttonStateSel2) && (buttonStateSel3)) {
+    Millares = 1;
+    Decenas = 1;
+  }
+  //XOR
+  if ((buttonA ^ buttonB) && (buttonStateSel1) && (!buttonStateSel2) && (buttonStateSel3)) {
+    Unidades = 1;
+  }
+  if ((buttonC ^ buttonD) && (buttonStateSel1) && (!buttonStateSel2) && (buttonStateSel3)) {
+    Millares = 1;
+    Decenas = 1;
+  }
+
+
+  //NOT
+  if ((!buttonA) && (!buttonStateSel1) && (!buttonStateSel2) && (buttonStateSel3)) {
+    Millares = 1;
+    Decenas = 1;
+  }
+  if ((!buttonB) && (!buttonStateSel1) && (!buttonStateSel2) && (buttonStateSel3)) {
+    Unidades = 1;
+  }
+
+  if (!err)  //Si no marco error se hacen los calculos
+  {
+    num = (Unidades + (Decenas * 2) + (Centenas * 4) + (Millares * 8));
+    decD = num / 10; //CASTEA COMO ENTERO PARA NO DAR DECIMAL
+    decU = num % 10; // SE OBTIENE EL SOBRANTE
+    Numero(decU); //LLAMA EL METODO DE IMPRIMIR LOS NUMEROS PARA EL PRIMER DISPLAY 
+    digitalWrite(Display01,HIGH); //PRENDE EL PRIMER DISPLAY DE IQUIZERA A DERECHA Y PONE EL NUMERO ANTERIOR
+    delay(1); //MILISEGUNDOS DE ESPERA
+    digitalWrite(Display01,LOW);    //APAGA EL DISPLAY 
+    ApagarTodo(); //APAGA TODOS LOS LED 
+    delay(0); //CERO MILISEGUNDOS
+    Numero(decD); //SE LLAMA EL NUMERO CON EL SEGUNDO DISPLAY 
+    digitalWrite(Display10,HIGH); //PRENDE EL DISPLAY
+    delay(1); //MILISEGUNDOS DE ESPERA
+    digitalWrite(Display10,LOW); //APAGA EL DISPLAY
+    ApagarTodo();// APAGA TODOS LOS LED
+  }
+}
+
+void Numero(int num) { //DEPENDE DEL NUMERO QUE SALIO, SE CREA EN EL DISPLAY
+  if (num==0) {
+    digitalWrite(pinA, LOW);
+    digitalWrite(pinB, LOW);
+    digitalWrite(pinC, LOW);
+    digitalWrite(pinD, LOW);
+    digitalWrite(pinE, LOW);
+    digitalWrite(pinF, LOW);
+  }
+  if (num==1) {
+    digitalWrite(pinB, LOW);
+    digitalWrite(pinC, LOW);
+  }
+  if (num==2) {
+    digitalWrite(pinA, LOW);
+    digitalWrite(pinB, LOW);
+    digitalWrite(pinG, LOW);
+    digitalWrite(pinD, LOW);
+    digitalWrite(pinE, LOW);
+  }
+  if (num==3) {
+    digitalWrite(pinA, LOW);
+    digitalWrite(pinB, LOW);
+    digitalWrite(pinC, LOW);
+    digitalWrite(pinD, LOW);
+    digitalWrite(pinG, LOW);
+  }
+  if (num==4) {
+    digitalWrite(pinB, LOW);
+    digitalWrite(pinC, LOW);
+    digitalWrite(pinG, LOW);
+    digitalWrite(pinF, LOW);
+  }
+  if (num==5) {
+    digitalWrite(pinA, LOW);
+    digitalWrite(pinG, LOW);
+    digitalWrite(pinC, LOW);
+    digitalWrite(pinD, LOW);
+    digitalWrite(pinF, LOW);
+  }
+  if (num==6) {
+    digitalWrite(pinA, LOW);
+    digitalWrite(pinG, LOW);
+    digitalWrite(pinC, LOW);
+    digitalWrite(pinD, LOW);
+    digitalWrite(pinE, LOW);
+    digitalWrite(pinF, LOW);
+  }
+  if (num==7) {
+    digitalWrite(pinA, LOW);
+    digitalWrite(pinB, LOW);
+    digitalWrite(pinC, LOW);
+  }
+  if (num==8) {
+    digitalWrite(pinA, LOW);
+    digitalWrite(pinB, LOW);
+    digitalWrite(pinC, LOW);
+    digitalWrite(pinD, LOW);
+    digitalWrite(pinE, LOW);
+    digitalWrite(pinF, LOW);
+    digitalWrite(pinG, LOW);
+  }
+  if (num==9) {
+    digitalWrite(pinA, LOW);
+    digitalWrite(pinB, LOW);
+    digitalWrite(pinC, LOW);
+    digitalWrite(pinD, LOW);
+    digitalWrite(pinG, LOW);
+    digitalWrite(pinF, LOW);
+  }
+}
+void ApagarTodo() { //METODO DE APAGAR TODO
+  digitalWrite(pinA, HIGH);
+  digitalWrite(pinB, HIGH);
+  digitalWrite(pinC, HIGH);
+  digitalWrite(pinD, HIGH);
+  digitalWrite(pinE, HIGH);
+  digitalWrite(pinF, HIGH);
+  digitalWrite(pinG, HIGH);
+}
+
+void Error() { //METODO DE ERROR 
+  digitalWrite(pinG, LOW);
+  digitalWrite(Display01, HIGH);
+  delay(5);
+  digitalWrite(Display01, LOW);
+  ApagarTodo();  
+  delay(0);
+  digitalWrite(pinG, LOW);
+  digitalWrite(Display10, HIGH);
+  delay(5);
+  digitalWrite(Display10, LOW);
+  ApagarTodo();
+}
